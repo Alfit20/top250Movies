@@ -2,6 +2,12 @@
   <div id="app">
     <PosterBg :poster="posterBg" />
     <MoviesList :list="moviesList" @changePoster="onChangePoster" />
+    <MoviesPagination
+      :current-page="currentPage"
+      :per-page="moviesPerPage"
+      :total="moviesLength"
+      @pageChanged="onPageChanged"
+    />
   </div>
 </template>
 
@@ -9,25 +15,45 @@
 import { mapActions, mapGetters } from "vuex";
 import MoviesList from "@/components/MoviesList";
 import PosterBg from "@/components/PosterBg";
+import MoviesPagination from "@/components/MoviesPagination";
 export default {
   name: "App",
   components: {
     MoviesList,
     PosterBg,
+    MoviesPagination,
   },
   data: () => ({
     posterBg: "",
   }),
   computed: {
-    ...mapGetters("movies", ["moviesList"]),
+    ...mapGetters("movies", [
+      "moviesList",
+      "currentPage",
+      "moviesPerPage",
+      "moviesLength",
+    ]),
   },
-  methods: {
-    ...mapActions("movies", ["fetchMovies"]),
-    onChangePoster(poster) {
-      console.log(poster);
-      this.posterBg = poster;
+  watch: {
+    "$route.query": {
+      handler: "onPageQueryChange",
+      immediate: true,
+      deep: true,
     },
   },
+  methods: {
+    ...mapActions("movies", ["changeCurrentPage"]),
+    onPageQueryChange({ page = 1 } = {}) {
+      this.changeCurrentPage(Number(page));
+    },
+    onChangePoster(poster) {
+      this.posterBg = poster;
+    },
+    onPageChanged(page) {
+      this.$router.push({ query: { page } });
+    },
+  },
+  mounted() {},
 };
 </script>
 
