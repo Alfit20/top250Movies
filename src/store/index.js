@@ -17,5 +17,4 @@ const store = new Vuex.Store({
     notificationStore,
   },
 });
-store.dispatch("initMoviesStore");
 export default store;
